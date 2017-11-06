@@ -1,106 +1,112 @@
 package Demo2_3;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.Scanner;
+import java.util.Vector;
 
 /**
  * Created by hj on 16-7-14.
- * 设计一个矩阵乘法程序，输入两个矩阵可以计算出它们的乘积。
+ * 使用向量保存图书信息，包括书名、作者、出版社、刊号、出版日期、页数和摘要，
+ * 并能够实现图书的插入、删除、查找功能。插入、删除时要显示操作是否正确与否的提示信息；
+ * 查找时按关键字值进行查找，并显示查找结果。
  */
-public class Demo_2_3_2 {
-    private int matrix1[][];
-    private int matrix2[][];
-    private int result_matrix[][];
+class Demo_2_3_3 {
+    private Book_Info tmp;
+    private Vector<Book_Info> BookVector;
+    private Scanner in = new Scanner(System.in);
 
-    public Demo_2_3_2() {
+    Demo_2_3_3()
+    {
         /**
          * 构造函数
          */
-        int i, j, tmp;
-        int ColumnNum, RowNum;
-        Scanner in = new Scanner(System.in);
-
-        System.out.println("请输入第一个矩阵的行数:");
-        RowNum = in.nextInt();
-        System.out.println("请输入第一个矩阵的列数:");
-        ColumnNum = in.nextInt();
-        matrix1 = new int[RowNum][ColumnNum];
-        for (i = 1; i <= RowNum; i++)
-            for (j = 1; j <= ColumnNum; j++) {
-                System.out.println("请输入矩阵第" + i + "行第" + j + "列的数字");
-                tmp = in.nextInt();
-                matrix1[i - 1][j - 1] = tmp;
-            }
-
-        System.out.println("请输入第二个矩阵的行数:");
-        RowNum = in.nextInt();
-        System.out.println("请输入第二个矩阵的列数:");
-        ColumnNum = in.nextInt();
-        matrix2 = new int[RowNum][ColumnNum];
-        for (i = 1; i <= RowNum; i++)
-            for (j = 1; j <= ColumnNum; j++) {
-                System.out.println("请输入矩阵第" + i + "行第" + j + "列的数字");
-                tmp = in.nextInt();
-                matrix2[i - 1][j - 1] = tmp;
-            }
-        //this.printTest(matrix1);
-        //this.printTest(matrix2);
-
-        result_matrix = this.matrixMultiplication(matrix1, matrix2);
-        this.printTest(result_matrix);
+        BookVector = new Vector<>(20, 1);
+        System.out.println("请输入初始化时图书信息数目");
+        int booknum = in.nextInt();
+        int i;
+        for(i=0;i<booknum;i++)
+            this.insert();
     }
 
-    private void printTest(int arry[][]) {
+    private void insert()
+    {
         /**
-         * 测试输出一个矩阵
+         * 插入
          */
-        System.out.println("--------result--------");
-        int i, j;
-        int row, col;
-        row = arry.length;
-        col = arry[0].length;
-        for (i = 0; i < row; i++) {
-            for (j = 0; j < col; j++)
-                System.out.print(arry[i][j] + " ");
-            System.out.println();
-        }
-        System.out.println();
+        tmp = new Book_Info();
+        BookVector.addElement(tmp);
     }
 
-    @Nullable
-    private int[][] matrixMultiplication(int arry1[][], int arry2[][]) {
+    private void selete()
+    {
         /**
-         * 矩阵乘法
-         * @parm1：矩阵1
-         * @parm2：矩阵2
-         * @return：矩阵1和2相乘的结果，若无法相乘返回null
+         * 查询
          */
-        int row1, col1, row2, col2;
-        row1 = arry1.length;
-        col1 = arry1[0].length;
-        row2 = arry2.length;
-        col2 = arry2[0].length;
-
-        if (col1 != row2) {
-            System.out.println("Error：输入的两个矩阵无法相乘");
-            return null;
+        System.out.println("请输入要查询的书目信息(模糊搜索)：");
+        String search_info = in.next();
+        int VectorSize = BookVector.size();
+        int i;
+        for(i=0;i<VectorSize;i++)
+        {
+            //从Vector中取出的是Object类型变量，需要转换成所需类型
+            tmp = BookVector.elementAt(i);
+            if (this.infoContain(tmp,search_info))
+                tmp.displayInfo();
         }
+    }
 
-        result_matrix = new int[row1][col2];
-        int tmp;
-        int i, j, l;
-        for (i = 0; i < row1; i++)
-            for (j = 0; j < col2; j++)
+    private boolean infoContain(Book_Info book, String search) {
+        return book.bookname.contains(search) ||
+                book.author.contains(search) ||
+                book.press.contains(search) ||
+                book.ISBN.contains(search) ||
+                book.publishData.contains(search) ||
+                book.pageNum.contains(search) ||
+                book.bookAbstrac.contains(search);
+    }
+
+    void delete()
+    {
+        /**
+         * 删除
+         */
+        System.out.println("请输入要删除书籍的ISBN号（刊号）。");
+        String ISBN = in.next();
+        boolean opreationFlag = true;
+
+        //=============可以重构的部分===============
+        int VectorSize = BookVector.size();
+        int i;
+        for(i=0;i<VectorSize;i++)
+        {
+            //从Vector中取出的是Object类型变量，需要转换成所需类型
+            tmp = BookVector.elementAt(i);
+            if(tmp.ISBN.contains(ISBN))
             {
-                tmp = 0;
-                for (l = 0; l < col1; l++)
-                        //System.out.println(matrix1[i][l] + "*" + matrix2[l][j]);
-                        tmp += matrix1[i][l] * matrix2[l][j];
-                result_matrix[i][j] = tmp;
+                opreationFlag = false;
+                System.out.println("您要删除的书籍信息为：");
+                tmp.displayInfo();
+
+                System.out.println("确认删除吗：？（Y/N）");
+                String answer = in.next();
+                switch (answer) {
+                    case "Y":
+                    case "y":
+                        BookVector.remove(i);
+                        break;
+                    case "N":
+                    case "n":
+                        System.out.println("取消删除");
+                        break;
+                    default:
+                        System.out.println("输入了错误的信息，请重新操作。");
+                        break;
+                }
             }
-        return result_matrix;
+        }
+        if(opreationFlag)
+            System.out.println("未查询到对应的书籍信息");
+
     }
+
+
 }
-
-
